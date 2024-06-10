@@ -1,23 +1,18 @@
 <!-- HTML -->
 <template>
-
   <RouterView />
 </template>
 
 <!-- script -->
 <script setup>
-import { RouterView, RouterLink} from 'vue-router';
+import { RouterView, RouterLink } from 'vue-router';
 </script>
 
 
 <style lang="scss">
-  @import "@css/styles.scss";
-  body {
-    background-color: map-get($background-colors, escuro);
-  }
+@import "@css/styles.scss";
 
-  #main-section {
-    height: 100vh;
-  }
-
+body {
+  background-color: map-get($background-colors, escuro);
+}
 </style>
