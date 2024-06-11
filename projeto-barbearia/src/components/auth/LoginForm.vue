@@ -9,11 +9,13 @@
         <div class="container-fluid p-0">
             <div id="login-field" class="d-flex mb-5">
                 <img src="@svg/Email.svg" alt="E-mail">
-                <input v-model="userData.email" type="email" id="input-email" class="form-control" placeholder="E-mail" required>
+                <input v-model="userData.email" type="email" id="input-email" class="form-control" placeholder="E-mail"
+                    required>
             </div>
             <div id="login-field" class="d-flex mb-5">
                 <img src="@svg/Password.svg" alt="E-mail">
-                <input v-model="userData.password" type="senha" id="input-senha" class="form-control" placeholder="Senha" required>
+                <input v-model="userData.password" type="senha" id="input-senha" class="form-control"
+                    placeholder="Senha" required>
             </div>
             <input id="login-button" type="submit" class="btn col-12" value="Entrar">
         </div>
@@ -25,22 +27,33 @@
 import axios from '../../services/http.js';
 import { reactive } from 'vue';
 import { useAuth } from '@/stores/auth.js';
+import { useRouter } from 'vue-router';
 
 const auth = useAuth()
+const router = useRouter();
 
 const userData = reactive({
     email: '',
     password: ''
 })
 
-async function login(){
+async function login() {
     try {
-        const {data} = await axios.post('/auth/login', userData);
+        const { data } = await axios.post('/auth/login', userData);
         auth.setToken(data.token);
+
+        await auth.checkToken(); // Esta função deve atualizar o userType
+
+        if (auth.userType === 'admin') router.push({ name: 'homeAdmin' });
+        else if (auth.userType === 'employee') router.push({ name: 'homeEmployee' });
+        else if (auth.userType === 'client') router.push({ name: 'homeClient' });
+
     } catch (error) {
         console.log(error?.response?.data);
     }
 }
+
+
 
 </script>
 

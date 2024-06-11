@@ -1,5 +1,6 @@
 <template>
     <div class="container-fluid">
+
         <div class="offcanvas offcanvas-start show p-0" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header p-4 mt-4 justify-content-center">
                 <img src="@svg/Admin.svg" alt="Admin">
@@ -41,16 +42,37 @@
                             <li>Minha conta</li>
                         </div>
                     </RouterLink>
+                    <div class="d-flex justify-content-center pt-4">
+                        <button @click="logout" id="button-logout" class="btn btn-secondary">
+                            <div class="">
+                                <img src="@svg/Logout.svg" alt="Minha conta">
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { useAuth } from '@/stores/auth.js';
+import { useRouter } from 'vue-router';
+
+const auth = useAuth();
+const router = useRouter();
+
+function logout() {
+    auth.clear();
+    router.push({ name: 'login' });
+}
+</script>
+
 
 <style lang="scss" scoped>
 @import "@css/styles.scss";
+
+
 
 #offcanvas {
     background-color: map-get($background-colors, amarelo);

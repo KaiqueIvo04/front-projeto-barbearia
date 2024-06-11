@@ -31,14 +31,14 @@ const router = createRouter({
         {
             path: '/employee',
             name: 'homeEmployee',
-            component: import('@pages/employeePages/HomeEmployee.vue'),
+            component: () => import('@pages/employeePages/HomeEmployee.vue'),
             meta: { requiresAuth: true, type: 'employee' },
             children: []
           },
           {
             path: '/client',
             name: 'homeClient',
-            component: import('@pages/clientPages/HomeClient.vue'),
+            component: () => import('@pages/clientPages/HomeClient.vue'),
             meta: { requiresAuth: true, type: 'client' },
             children: []
           },
@@ -54,6 +54,7 @@ router.beforeEach(async (to, from, next) => {
             const isAuthenticated = await auth.checkToken();
             if (isAuthenticated) {
                 const userType = auth.userType;
+                //Fazer Logout agora
                 if (to.meta.type && to.meta.type === userType) {
                     next(); // Tipo de usuário correspondente, pode acessar a rota
                 } else {

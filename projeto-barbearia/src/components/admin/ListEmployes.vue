@@ -12,7 +12,7 @@
                 <tr v-for="funcionario in funcionarios" :key="funcionario.id">
                     <td>{{ funcionario.name }}</td>
                     <td>{{ funcionario.email }}</td>
-                    <td>{{ funcionario.createdAt }}</td>
+                    <td>{{ formatDate(funcionario.createdAt) }}</td>
                 </tr>
                 <!-- <tr>
                     <td colspan="3" class="empty-row">Nenhum funcionário</td>
@@ -29,6 +29,7 @@
 <script setup>
 import axios from '../../services/http.js'
 import { ref } from 'vue';
+import { formatDate } from '../../services/utils.js';
 
 const funcionarios = ref();
 
