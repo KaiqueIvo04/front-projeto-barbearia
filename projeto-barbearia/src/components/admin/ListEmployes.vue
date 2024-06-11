@@ -1,6 +1,6 @@
 <template>
     <div class="table-responsive">
-        <table class="table table-hover" :class="{ empty: !funcionarios.length }">
+        <table class="table table-hover">
             <thead class="table-dark" id="t-head">
                 <tr>
                     <th scope="col">Nome</th>
@@ -9,14 +9,14 @@
                 </tr>
             </thead>
             <tbody class="table-dark">
-                <tr v-for="funcionario in funcionarios" :key="funcionario.email">
-                    <td>{{ funcionario.nome }}</td>
+                <tr v-for="funcionario in funcionarios" :key="funcionario.id">
+                    <td>{{ funcionario.name }}</td>
                     <td>{{ funcionario.email }}</td>
-                    <td>{{ funcionario.dataCriacao }}</td>
+                    <td>{{ funcionario.createdAt }}</td>
                 </tr>
-                <tr v-if="!funcionarios.length">
+                <!-- <tr>
                     <td colspan="3" class="empty-row">Nenhum funcionário</td>
-                </tr>
+                </tr> -->
             </tbody>
         </table>
     </div>
@@ -27,19 +27,14 @@
 </template>
 
 <script setup>
-
+import axios from '../../services/http.js'
 import { ref } from 'vue';
 
-const funcionarios = ref([
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-    { nome: 'Funcionário', email: 'funcionario@gmail.com', dataCriacao: '01/01/2021' },
-]);
+const funcionarios = ref();
+
+axios.get('/employees').then((response) => {
+    funcionarios.value = response.data.employees; //deu certo resolver situação do .env
+})
 
 </script>
 

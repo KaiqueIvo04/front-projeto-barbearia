@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AuthPage from '@pages/authPages/AuthPage.vue';
 import RegisterPage from '@pages/authPages/RegisterPage.vue';
-import store from '@/store'; // Assumindo que você está usando Vuex para gerenciar o estado do usuário
+import { useAuth } from '@/stores/auth.js';
 // import adminRoutes from '@router/adminRoutes';
 
 const router = createRouter({
@@ -13,7 +13,7 @@ const router = createRouter({
         },
         {
             path: '/auth',
-            name: 'auth',
+            name: 'login',
             component: AuthPage,
         },
         {
@@ -24,40 +24,50 @@ const router = createRouter({
         {
             path: '/admin',
             name: 'homeAdmin',
-            component: () => import('@pages/adminPages/homeAdmin.vue'), //Lazy Load (só carrega quando clicar no link - sem preload),
+            component: () => import('@pages/adminPages/HomeAdmin.vue'), //Lazy Load (só carrega quando clicar no link - sem preload),
             meta: { requiresAuth: true, type: 'admin' },
             children: []
         },
-        // {
-        //     path: '/employee',
-        //     name: 'homeEmployee',
-        //     component: homeEmployee,
-        //     meta: { requiresAuth: true, type: 'employee' },
-        //     children: []
-        //   },
-        //   {
-        //     path: '/client',
-        //     name: 'homeClient',
-        //     component: homeEmployee,
-        //     meta: { requiresAuth: true, type: 'client' },
-        //     children: []
-        //   },
+        {
+            path: '/employee',
+            name: 'homeEmployee',
+            component: import('@pages/employeePages/HomeEmployee.vue'),
+            meta: { requiresAuth: true, type: 'employee' },
+            children: []
+          },
+          {
+            path: '/client',
+            name: 'homeClient',
+            component: import('@pages/clientPages/HomeClient.vue'),
+            meta: { requiresAuth: true, type: 'client' },
+            children: []
+          },
         
     ]
 })
 
-// router.beforeEach((to, from, next) => {
-//     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-//     const userRole = store.getters['auth/role']; // Supondo que você tenha um getter no Vuex para pegar o papel do usuário
-//     const isAuthenticated = store.getters['auth/isAuthenticated']; // Supondo que você tenha um getter no Vuex para verificar a autenticação
-  
-//     if (requiresAuth && !isAuthenticated) {
-//       next({ name: 'auth' });
-//     } else if (requiresAuth && to.meta.role !== userRole) {
-//       next({ name: 'NotFound' }); // Ou você pode redirecionar para uma página de 'Acesso Negado'
-//     } else {
-//       next();
-//     }
-//   });
+router.beforeEach(async (to, from, next) => {
+    const auth = useAuth(); 
+  //Falta verificar pq tá voltando pro login
+    if (to.meta?.requiresAuth) {
+        if (auth.token) {
+            const isAuthenticated = await auth.checkToken();
+            if (isAuthenticated) {
+                const userType = auth.userType;
+                if (to.meta.type && to.meta.type === userType) {
+                    next(); // Tipo de usuário correspondente, pode acessar a rota
+                } else {
+                    next({ name: "login" }); // Tipo de usuário não correspondente, redireciona para login
+                }
+            } else {
+                next({ name: "login" }); // Token inválido, redireciona para login
+            }
+        } else {
+            next({ name: "login" }); // Sem token, redireciona para login
+        }
+    } else {
+        next(); // Rota não precisa de autenticação, deixa acessar
+    }
+});
 
 export default router;

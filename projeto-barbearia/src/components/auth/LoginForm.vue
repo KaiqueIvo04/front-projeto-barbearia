@@ -1,5 +1,5 @@
 <template>
-    <form class="p-4 p-md-5 rounded-4" id="form-login">
+    <form class="p-4 p-md-5 rounded-4" id="form-login" @submit.prevent="login">
         <div id="login-logo" class="container-fluid d-flex p-0 justify-content-center">
             <p class="text-center">Kaique <br> BarberShop</p>
             <div class="d-flex align-items-center">
@@ -9,11 +9,11 @@
         <div class="container-fluid p-0">
             <div id="login-field" class="d-flex mb-5">
                 <img src="@svg/Email.svg" alt="E-mail">
-                <input type="email" id="input-email" class="form-control" placeholder="E-mail" required>
+                <input v-model="userData.email" type="email" id="input-email" class="form-control" placeholder="E-mail" required>
             </div>
             <div id="login-field" class="d-flex mb-5">
                 <img src="@svg/Password.svg" alt="E-mail">
-                <input type="senha" id="input-senha" class="form-control" placeholder="Senha" required>
+                <input v-model="userData.password" type="senha" id="input-senha" class="form-control" placeholder="Senha" required>
             </div>
             <input id="login-button" type="submit" class="btn col-12" value="Entrar">
         </div>
@@ -22,6 +22,26 @@
 </template>
 
 <script setup>
+import axios from '../../services/http.js';
+import { reactive } from 'vue';
+import { useAuth } from '@/stores/auth.js';
+
+const auth = useAuth()
+
+const userData = reactive({
+    email: '',
+    password: ''
+})
+
+async function login(){
+    try {
+        const {data} = await axios.post('/auth/login', userData);
+        auth.setToken(data.token);
+    } catch (error) {
+        console.log(error?.response?.data);
+    }
+}
+
 </script>
 
 <style scoped lang="scss">
