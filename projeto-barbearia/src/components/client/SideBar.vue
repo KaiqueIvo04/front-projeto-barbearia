@@ -3,46 +3,25 @@
 
         <div class="offcanvas offcanvas-start show p-0" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header p-4 mt-4 justify-content-center">
-                <img src="@svg/Admin.svg" alt="Admin">
+                <img src="@svg/SpecialistUser.svg" alt="Client">
             </div>
             <div class="offcanvas-body p-0">
                 <div class="text-center">
                     <hr>
-                    <p>Acessando como:<br><strong>Administrador</strong></p>
+                    <p>Acessando como:<br><strong>Cliente</strong></p>
                     <hr>
                 </div>
                 <div class="list-group">
-                    <RouterLink to="/admins">
+                    <RouterLink to="/clients">
                         <div :class="['d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1',
-                            { 'list-group-item-active': this.$route.path === '/admins' }]">
-                            <img src="@svg/Group.svg" alt="Grupo">
-                            <li>Funcionários</li>
+                            { 'list-group-item-active': this.$route.path === '/clients' }]">
+                            <img src="@svg/Interview.svg" alt="Grupo">
+                            <li>Solicitar serviço</li>
                         </div>
                     </RouterLink>
-                    <RouterLink to="/admins/services">
+                    <RouterLink to="/clients/myaccount">
                         <div :class="['d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1',
-                            { 'list-group-item-active': this.$route.path === '/admins/services' }]">
-                            <img src="@svg/Scissors.svg" alt="Serviços">
-                            <li>Serviços</li>
-                        </div>
-                    </RouterLink>
-                    <RouterLink to="/admins/schedules">
-                        <div :class="['d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1',
-                            { 'list-group-item-active': this.$route.path === '/admins/schedules' }]">
-                            <img src="@svg/Clock.svg" alt="Horário">
-                            <li>Horário</li>
-                        </div>
-                    </RouterLink>
-                    <RouterLink to="/admins/serviceschedules">
-                        <div :class="['d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1',
-                            { 'list-group-item-active': this.$route.path === '/admins/serviceschedules' }]">
-                            <img src="@svg/Schedule.svg" alt="Agendamentos">
-                            <li>Agendamentos</li>
-                        </div>
-                    </RouterLink>
-                    <RouterLink to="/admins/myaccount">
-                        <div :class="['d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1',
-                            { 'list-group-item-active': this.$route.path === '/admins/myaccount' }]">
+                            { 'list-group-item-active': this.$route.path === '/clients/myaccount' }]">
                             <img src="@svg/User.svg" alt="Minha conta">
                             <li>Minha conta</li>
                         </div>
@@ -57,6 +36,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
@@ -66,8 +46,6 @@ import { useRouter } from 'vue-router';
 
 const auth = useAuth();
 const router = useRouter();
-
-console.log(router)
 
 function logout() {
     auth.clear();

@@ -22,21 +22,21 @@ const router = createRouter({
             component: RegisterPage
         },
         {
-            path: '/admin',
+            path: '/admins',
             name: 'homeAdmin',
             component: () => import('@pages/adminPages/HomeAdmin.vue'), //Lazy Load (só carrega quando clicar no link - sem preload),
             meta: { requiresAuth: true, type: 'admin' },
             children: []
         },
         {
-            path: '/employee',
+            path: '/employees',
             name: 'homeEmployee',
             component: () => import('@pages/employeePages/HomeEmployee.vue'),
             meta: { requiresAuth: true, type: 'employee' },
             children: []
           },
           {
-            path: '/client',
+            path: '/clients',
             name: 'homeClient',
             component: () => import('@pages/clientPages/HomeClient.vue'),
             meta: { requiresAuth: true, type: 'client' },

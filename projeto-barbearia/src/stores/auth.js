@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import axios from '../services/http.js';
 import { computed, ref } from 'vue';
 
+//Gerenciador de estados do usuário
 export const useAuth = defineStore('auth', () => {
     const token = ref(localStorage.getItem('token'));
     let userType = ref();
