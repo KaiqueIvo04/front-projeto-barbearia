@@ -3,20 +3,24 @@
         <table class="table table-hover">
             <thead class="table-dark" id="t-head">
                 <tr>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Data de criação</th>
+                    <th scope="col" class="col-name">Nome</th>
+                    <th scope="col" class="col-email">Email</th>
+                    <th scope="col" class="col-createdAt">Data de criação</th>
                 </tr>
             </thead>
-            <tbody class="table-dark">
+
+            <tbody class="table-dark" v-if="funcionarios && funcionarios.length">
                 <tr v-for="funcionario in funcionarios" :key="funcionario.id">
-                    <td>{{ funcionario.name }}</td>
-                    <td>{{ funcionario.email }}</td>
-                    <td>{{ formatDate(funcionario.createdAt) }}</td>
+                    <td class="col-name">{{ funcionario.name }}</td>
+                    <td class="col-email">{{ funcionario.email }}</td>
+                    <td class="col-createdAt">{{ formatDate(funcionario.createdAt) }}</td>
                 </tr>
-                <!-- <tr>
+            </tbody>
+
+            <tbody class="table-dark" v-else>
+                <tr>
                     <td colspan="3" class="empty-row">Nenhum funcionário</td>
-                </tr> -->
+                </tr>
             </tbody>
         </table>
     </div>
@@ -31,11 +35,14 @@ import axios from '../../services/http.js'
 import { ref } from 'vue';
 import { formatDate } from '../../services/utils.js';
 
-const funcionarios = ref();
+const funcionarios = ref(null);
 
 axios.get('/employees').then((response) => {
-    funcionarios.value = response.data.employees; //deu certo resolver situação do .env
-})
+    funcionarios.value = response.data.employees;
+}).catch(error => {
+    console.error('Error fetching employees:', error);
+    funcionarios.value = [];
+});
 
 </script>
 
@@ -73,5 +80,9 @@ axios.get('/employees').then((response) => {
 .empty-row {
     text-align: center;
     font-style: italic;
+}
+
+.col-name, .col-email, .col-createdAt {
+    width: 33.33%;
 }
 </style>

@@ -67,8 +67,6 @@ import { useRouter } from 'vue-router';
 const auth = useAuth();
 const router = useRouter();
 
-console.log(router)
-
 function logout() {
     auth.clear();
     router.push({ name: 'login' });

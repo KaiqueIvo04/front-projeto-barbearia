@@ -3,40 +3,34 @@
 
         <div class="offcanvas offcanvas-start show p-0" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
             <div class="offcanvas-header p-4 mt-4 justify-content-center">
-                <img src="@svg/Admin.svg" alt="Admin">
+                <img src="@svg/Barber.svg" alt="Barber">
             </div>
             <div class="offcanvas-body p-0">
                 <div class="text-center">
                     <hr>
-                    <p>Acessando como:<br><strong>Administrador</strong></p>
+                    <p>Acessando como:<br><strong>Funcionário</strong></p>
                     <hr>
                 </div>
                 <div class="list-group">
-                    <RouterLink to="/admins/employees">
+                    <RouterLink to="/employees">
                         <div class="d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1">
-                            <img src="@svg/Group.svg" alt="Grupo">
-                            <li>Funcionários</li>
+                            <img src="@svg/Interview.svg" alt="Grupo">
+                            <li>Solicitações</li>
                         </div>
                     </RouterLink>
-                    <RouterLink to="/admins/services">
+                    <RouterLink to="/employees/dayworkschedules">
                         <div class="d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1">
-                            <img src="@svg/Scissors.svg" alt="Serviços">
-                            <li>Serviços</li>
+                            <img src="@svg/Calendar.svg" alt="Serviços">
+                            <li>Agendamentos do dia</li>
                         </div>
                     </RouterLink>
-                    <RouterLink to="/admins/schedules">
+                    <RouterLink to="/employees/weekworkschedules">
                         <div class="d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1">
                             <img src="@svg/Clock.svg" alt="Horário">
-                            <li>Horário</li>
+                            <li>Horário Semanal</li>
                         </div>
                     </RouterLink>
-                    <RouterLink to="/admins/serviceschedules">
-                        <div class="d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1">
-                            <img src="@svg/Schedule.svg" alt="Agendamentos">
-                            <li>Agendamentos</li>
-                        </div>
-                    </RouterLink>
-                    <RouterLink to="/admins/myaccount">
+                    <RouterLink to="/employees/myaccount">
                         <div class="d-flex ps-4 gap-3 list-group-item list-group-item-dark p-1">
                             <img src="@svg/User.svg" alt="Minha conta">
                             <li>Minha conta</li>
