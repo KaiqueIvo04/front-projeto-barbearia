@@ -7,13 +7,13 @@
             <form>
                 <div class="form-group">
                     <label for="data">Selecione a data desejada:</label>
-                    <select id="data" class="form-control" v-model="formData.data">
+                    <select id="data" class="form-control" v-model="formData.data" @change="verifyWorkSchedule">
                         <option v-for="(day, index) in weekDays" :key="index" :value="day">{{ day }}</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="horario">Selecione o horário desejado:</label>
-                    <select id="horario" class="form-control" v-model="formData.horario">
+                    <select id="horario" class="form-control" v-model="formData.horario" @change="verifyWorkSchedule">
                         <option v-for="(time, index) in availableTimes" :key="index" :value="time">{{ time }}</option>
                     </select>
                 </div>
@@ -33,11 +33,11 @@
         </div>
         <div class="col-md-6">
             <div class="card">
-                <div class="card-body">
+                <div class="card-body" v-if="selectedEmployee">
                     <h5 class="card-title">Informações do funcionário:</h5>
-                    <p><strong>Nome:</strong> Funcionário 1</p>
-                    <p><strong>Cargo:</strong> Barbeiro</p>
-                    <p><strong>Contato:</strong> (83) 99999-9999</p>
+                    <p><strong>Nome:</strong> {{ selectedEmployee.name }}</p>
+                    <p><strong>Cargo:</strong> {{ selectedEmployee.role }}</p>
+                    <p><strong>Contato:</strong> {{ selectedEmployee.contact }}</p>
                     <p><strong>Disponibilidade:</strong> Disponível</p>
                 </div>
             </div>
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import axios from '../../services/http.js'
+import axios from '../../services/http.js';
 
 export default {
     data() {
@@ -59,12 +59,15 @@ export default {
             weekDays: [],
             availableTimes: [],
             services: [],
+            workSchedules: [],
+            selectedEmployee: null,
         };
     },
     mounted() {
         this.getWeekDays();
         this.getAvailableTimes();
         this.getServices();
+        this.getWorkSchedules();
     },
 
     methods: {
@@ -73,6 +76,7 @@ export default {
             alert('Agendamento solicitado!');
         },
 
+        //Lista todos os dias da semana atual
         getWeekDays() {
             const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
             const today = new Date();
@@ -89,6 +93,7 @@ export default {
             this.weekDays = weekDays;
         },
 
+        //Lista todos os horários em um dia
         getAvailableTimes() {
             const startTime = new Date();
             startTime.setHours(7, 30, 0); // 7:30 AM
@@ -109,6 +114,7 @@ export default {
             this.availableTimes = times;
         },
 
+        //Pega todos os serviços registrados
         async getServices() {
             try {
                 const response = await axios.get('http://localhost:8081/api/v1/services');
@@ -117,6 +123,49 @@ export default {
                 }
             } catch (error) {
                 console.error('Erro ao buscar serviços:', error);
+            }
+        },
+
+        //Pega todos os agendamentos registrados
+        async getWorkSchedules() {
+            try {
+                
+                const response = await axios.get('http://localhost:8081/api/v1/workschedules');
+                if (response.data.status === 'Success') {
+                    this.workSchedules = response.data.workSchedules;
+                }
+            } catch (error) {
+                console.error('Erro ao buscar horários de trabalho:', error);
+            }
+        },
+
+        //Verificar qual horário encaixa com qual funcionário
+        async verifyWorkSchedule() {
+            if (this.formData.data && this.formData.horario) { //Se existir data e horario selecionado
+                const selectedDate = this.formData.data.split(' | ')[1].split('/').reverse().join('/'); //Pega apenas a data do dia selecionado
+
+                //Encontra o schedule que se encaixa no horário do barbeiro
+                const workSchedule = this.workSchedules.find(schedule =>
+                    schedule.day === selectedDate &&
+                    this.formData.horario >= schedule.start_hour &&
+                    this.formData.horario < schedule.finish_hour
+                );
+
+                if (workSchedule) { //Se existir um horário que se encaixa
+                    try {
+                        //Get com id do funcionário que encaixa o horário
+                        const response = await axios.get(`http://localhost:8081/api/v1/employees/${workSchedule.responsible_employee}`);
+                        if (response.data.status === 'Success') {
+                            this.selectedEmployee = response.data.employee; //Pega os dados do funcionário e armazena para mostrar
+                        }
+                    } catch (error) {
+                        console.error('Erro ao buscar dados do funcionário:', error);
+                    }
+                } else {
+                    this.selectedEmployee = null;
+                }
+            } else {
+                this.selectedEmployee = null;
             }
         },
     },
