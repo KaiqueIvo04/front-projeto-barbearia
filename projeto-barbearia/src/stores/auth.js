@@ -13,6 +13,11 @@ export const useAuth = defineStore('auth', () => {
         token.value = newToken;
     }
 
+    //Pegar token do armazenamento local do navegador
+    function getToken() {
+        if(token) return token.value
+    }
+
     //Verificar se o usuário está logado
     const isAuthenticated = computed(() => {
         return token.value;
@@ -46,6 +51,7 @@ export const useAuth = defineStore('auth', () => {
     return {
         checkToken,
         setToken,
+        getToken,
         isAuthenticated,
         token,
         userType,

@@ -33,12 +33,17 @@
         </div>
         <div class="col-md-6">
             <div class="card">
-                <div class="card-body" v-if="selectedEmployee">
+                <div class="card-body">
                     <h5 class="card-title">Informações do funcionário:</h5>
-                    <p><strong>Nome:</strong> {{ selectedEmployee.name }}</p>
-                    <p><strong>Cargo:</strong> {{ selectedEmployee.role }}</p>
-                    <p><strong>Contato:</strong> {{ selectedEmployee.contact }}</p>
-                    <p><strong>Disponibilidade:</strong> Disponível</p>
+                    <template v-if="selectedEmployee">
+                        <p><strong>Nome:</strong> {{ selectedEmployee.name }}</p>
+                        <p><strong>Cargo:</strong> {{ selectedEmployee.role }}</p>
+                        <p><strong>Contato:</strong> {{ selectedEmployee.contact }}</p>
+                        <p><strong>Disponibilidade:</strong> {{ selectedEmployee.status }}</p>
+                    </template>
+                    <template v-else>
+                        <p>Nenhum funcionário disponível para o horário selecionado.</p>
+                    </template>
                 </div>
             </div>
         </div>
@@ -47,7 +52,12 @@
 
 <script>
 import axios from '../../services/http.js';
+import { useAuth } from '@/stores/auth.js';
 
+const auth = useAuth()
+
+
+//Verificar questão da disponibilidade do funcionário
 export default {
     data() {
         return {
@@ -61,9 +71,12 @@ export default {
             services: [],
             workSchedules: [],
             selectedEmployee: null,
+            responsibleClient: null, // ID do cliente logado
+            responsibleAdmin: '66684cb3bbb3870de9b65e37', // ID do admin responsável
         };
     },
     mounted() {
+        this.getUserData();
         this.getWeekDays();
         this.getAvailableTimes();
         this.getServices();
@@ -71,10 +84,59 @@ export default {
     },
 
     methods: {
-        solicitarAgendamento() {
-            // Lógica para solicitar agendamento
-            alert('Agendamento solicitado!');
+        //Pegar token e trazer dados do usuário para pegar id
+        async getUserData() {
+            const tokenAuth = 'Bearer ' + auth.getToken();
+            const response = await axios.get("/auth/me", {
+                headers: {
+                    Authorization: tokenAuth,
+                }
+            });
+
+            this.responsibleClient = response.data.client._id;
         },
+
+        //Solicitar agendamento ao clicar no botão
+        async solicitarAgendamento() {
+            if (this.selectedEmployee && this.formData.data && this.formData.horario && this.formData.servico) { //Se os dados do formulário e o funcionário disponível existirem
+                const selectedDate = this.formData.data.split(' | ')[1].split('/').reverse().join('-'); // Formatando a data (2024-0-/16)
+                const scheduleData = {
+                    responsible_employee: this.selectedEmployee._id,
+                    responsible_client: this.responsibleClient,
+                    responsible_admin: this.responsibleAdmin,
+                    date_schedule: selectedDate,
+                };
+
+                try {
+                    const scheduleResponse = await axios.post('/schedules', scheduleData);
+                    console.log(scheduleResponse.data.schedule)
+                    if (scheduleResponse.data.status === 'Success') {
+                        const scheduleId = scheduleResponse.data.schedule._id; console.log(scheduleId)
+                        const serviceScheduleData = {
+                            related_service: this.formData.servico,
+                            related_schedule: scheduleId,
+                            responsible_admin: this.responsibleAdmin,
+                        };
+
+                        const serviceScheduleResponse = await axios.post('/serviceschedules', serviceScheduleData);
+                        if (serviceScheduleResponse.data.status === 'Success') {
+                            alert('Agendamento realizado com sucesso!');
+                        } else {
+                            alert('Erro ao agendar o serviço.');
+                        }
+                    } else {
+                        alert('Erro ao criar o agendamento.');
+                    }
+                } catch (error) {
+                    console.error('Erro ao realizar agendamento:', error);
+                    alert('Erro ao realizar agendamento.');
+                }
+            } else {
+                if(this.selectedEmployee) alert('Por favor, preencha todos os campos e selecione um funcionário disponível.');
+                else alert('Por favor selecione um horário que possua funcionários disponíveis.')
+            }
+        },
+
 
         //Lista todos os dias da semana atual
         getWeekDays() {
@@ -117,7 +179,7 @@ export default {
         //Pega todos os serviços registrados
         async getServices() {
             try {
-                const response = await axios.get('http://localhost:8081/api/v1/services');
+                const response = await axios.get('/services');
                 if (response.data.status === 'Success') {
                     this.services = response.data.services;
                 }
@@ -129,8 +191,8 @@ export default {
         //Pega todos os agendamentos registrados
         async getWorkSchedules() {
             try {
-                
-                const response = await axios.get('http://localhost:8081/api/v1/workschedules');
+
+                const response = await axios.get('/workschedules');
                 if (response.data.status === 'Success') {
                     this.workSchedules = response.data.workSchedules;
                 }
