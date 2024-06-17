@@ -25,8 +25,8 @@
                     </select>
                 </div>
                 <div class="w-100 d-flex justify-content-center mt-4">
-                    <button type="button" class="btn btn-secondary" @click="solicitarAgendamento">Solicitar
-                        Agendamento
+                    <button type="button" class="btn btn-secondary" @click="solicitarAgendamento">
+                        Solicitar <br>Agendamento
                     </button>
                 </div>
             </form>
@@ -98,20 +98,29 @@ export default {
 
         //Solicitar agendamento ao clicar no botão
         async solicitarAgendamento() {
-            if (this.selectedEmployee && this.formData.data && this.formData.horario && this.formData.servico) { //Se os dados do formulário e o funcionário disponível existirem
-                const selectedDate = this.formData.data.split(' | ')[1].split('/').reverse().join('-'); // Formatando a data (2024-0-/16)
-                const scheduleData = {
-                    responsible_employee: this.selectedEmployee._id,
-                    responsible_client: this.responsibleClient,
-                    responsible_admin: this.responsibleAdmin,
-                    date_schedule: selectedDate,
-                };
-
+            if (this.selectedEmployee && this.formData.data && this.formData.horario && this.formData.servico) {
                 try {
+                    // Pega a data selecionada e o horário
+                    const [day, month, year] = this.formData.data.split(' | ')[1].split('/');
+                    const [hours, minutes] = this.formData.horario.split(':');
+
+                    // Constrói a data no formato correto
+                    const selectedDate = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+
+                    // Converte para o formato ISO 8601
+                    const selectedDateISO = selectedDate.toISOString();
+
+                    const scheduleData = {
+                        responsible_employee: this.selectedEmployee._id,
+                        responsible_client: this.responsibleClient,
+                        responsible_admin: this.responsibleAdmin,
+                        date_schedule: selectedDateISO,
+                    };
+
                     const scheduleResponse = await axios.post('/schedules', scheduleData);
-                    console.log(scheduleResponse.data.schedule)
                     if (scheduleResponse.data.status === 'Success') {
-                        const scheduleId = scheduleResponse.data.schedule._id; console.log(scheduleId)
+                        const scheduleId = scheduleResponse.data.schedule._id;
+
                         const serviceScheduleData = {
                             related_service: this.formData.servico,
                             related_schedule: scheduleId,
@@ -132,8 +141,11 @@ export default {
                     alert('Erro ao realizar agendamento.');
                 }
             } else {
-                if(this.selectedEmployee) alert('Por favor, preencha todos os campos e selecione um funcionário disponível.');
-                else alert('Por favor selecione um horário que possua funcionários disponíveis.')
+                if (this.selectedEmployee) {
+                    alert('Por favor, preencha todos os campos e selecione um funcionário disponível.');
+                } else {
+                    alert('Por favor selecione um horário que possua funcionários disponíveis.');
+                }
             }
         },
 

@@ -13,9 +13,9 @@
             <tbody class="table-dark" v-if="serviceRequests.length">
                 <tr v-for="(request, index) in serviceRequests" :key="index">
                     <td><input type="checkbox" v-model="selectedRequests" :value="request.id"></td>
-                    <td>{{ request.cliente }}</td>
-                    <td>{{ request.servico }}</td>
-                    <td>{{ request.data }} | {{ request.hora }}</td>
+                    <td>{{ request.clientName }}</td>
+                    <td>{{ request.serviceName }}</td>
+                    <td>{{ formatDate(request.date_schedule) }}</td>
                     <td>{{ request.status }}</td>
                 </tr>
             </tbody>
@@ -28,29 +28,74 @@
     </div>
     <div class="btn-container">
         <button class="btn btn-primary" @click="acceptSelected">Aceitar</button>
-        <button class="btn btn-danger" @click="rejectSelected">Não aceitar</button>
+        <button class="btn btn-danger" @click="rejectSelected">Não <br>aceitar</button>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from '../../services/http.js';
+import { useAuth } from '@/stores/auth.js';
+import { formatDate } from '../../services/utils.js';
+
+const auth = useAuth()
 
 const serviceRequests = ref([]);
 const selectedRequests = ref([]);
+const loggedInEmployeeId = ref([]); // Supondo que você tenha o ID do funcionário logado
 
-// Função para buscar as solicitações de serviço
+
+//Pegar token e trazer dados do usuário para pegar id
+const getUserData = async () => {
+    const tokenAuth = 'Bearer ' + auth.getToken();
+    const response = await axios.get("/auth/me", {
+        headers: {
+            Authorization: tokenAuth,
+        }
+    });
+
+    loggedInEmployeeId.value = response.data.employee._id;
+}
+
 const fetchServiceRequests = async () => {
+    await getUserData();
     try {
-        const response = await axios.get('/service-requests');
-        serviceRequests.value = response.data.requests; // Ajuste conforme a estrutura dos dados da API
+        const response = await axios.get(`/schedules?responsible_employee=${loggedInEmployeeId.value}`);
+        const schedules = response.data.schedules;
+
+        // Montar os dados que serão exibidos na tabela
+        const requests = [];
+        for (const schedule of schedules) {
+            const serviceResponse = await axios.get(`/serviceschedules?related_schedule=${schedule._id}`);
+            const serviceSchedule = serviceResponse.data.serviceSchedules[0];
+
+            // Buscar nome do cliente utilizando seu ID
+            const clientNameResponse = await axios.get(`/clients/${schedule.responsible_client}`);
+            const clientName = clientNameResponse.data.client.name;
+
+            // Buscar nome do serviço utilizando seu ID
+            const serviceNameResponse = await axios.get(`/services/${serviceSchedule.related_service}`);
+            const serviceName = serviceNameResponse.data.service.name_service;
+
+            requests.push({
+                id: schedule._id,
+                clientName: clientName, // Exemplo, ajuste conforme sua estrutura de dados
+                serviceName: serviceName, // Exemplo, ajuste conforme sua estrutura de dados
+                date_schedule: schedule.date_schedule,
+                status: schedule.status
+            });
+        }
+
+        serviceRequests.value = requests;
+        console.log(serviceRequests.value)
     } catch (error) {
         console.error('Erro ao buscar solicitações de serviço:', error);
     }
 };
 
-// Chamando a função para buscar os dados ao montar o componente
-fetchServiceRequests();
+
+onMounted(fetchServiceRequests);
+
 
 const acceptSelected = () => {
     alert('Aceitar: ' + selectedRequests.value.join(', '));
@@ -61,6 +106,7 @@ const rejectSelected = () => {
     alert('Rejeitar: ' + selectedRequests.value.join(', '));
     // Lógica para rejeitar os serviços selecionados
 };
+
 </script>
 
 <style lang="scss" scoped>
