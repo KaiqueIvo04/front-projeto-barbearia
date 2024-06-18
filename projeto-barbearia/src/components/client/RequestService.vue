@@ -38,11 +38,11 @@
                     <template v-if="selectedEmployee">
                         <p><strong>Nome:</strong> {{ selectedEmployee.name }}</p>
                         <p><strong>Cargo:</strong> {{ selectedEmployee.role }}</p>
-                        <p><strong>Contato:</strong> {{ selectedEmployee.contact }}</p>
+                        <p><strong>Contato:</strong> {{ selectedEmployee.contact_personal }}</p>
                         <p><strong>Disponibilidade:</strong> {{ selectedEmployee.status }}</p>
                     </template>
                     <template v-else>
-                        <p>Nenhum funcionário disponível para o horário selecionado.</p>
+                        <p>Nenhum funcionário trabalhará neste o horário.</p>
                     </template>
                 </div>
             </div>
