@@ -5,7 +5,6 @@ import { createPinia } from 'pinia'
 //Importar
 import App from './App.vue'
 import router from './router/index.js'
-// import stores from './stores/auth.js'; // Importando o store
 import './services/http.js'
 
 //Renderizar aplicação

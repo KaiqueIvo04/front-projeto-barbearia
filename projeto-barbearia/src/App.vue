@@ -5,7 +5,7 @@
 
 <!-- script -->
 <script setup>
-import { RouterView, RouterLink } from 'vue-router';
+import { RouterView } from 'vue-router';
 </script>
 
 
