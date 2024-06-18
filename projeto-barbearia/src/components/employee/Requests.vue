@@ -88,7 +88,6 @@ const fetchServiceRequests = async () => {
         }
 
         serviceRequests.value = requests;
-        console.log(serviceRequests.value)
     } catch (error) {
         console.error('Erro ao buscar solicitações de serviço:', error);
     }
