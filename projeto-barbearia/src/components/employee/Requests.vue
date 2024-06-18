@@ -28,7 +28,8 @@
     </div>
     <div class="btn-container">
         <button class="btn btn-primary" @click="acceptSelected">Aceitar</button>
-        <button class="btn btn-danger" @click="rejectSelected">Não <br>aceitar</button>
+        <button class="btn btn-secondary" @click="rejectSelected">Não <br>aceitar</button>
+        <button class="btn btn-danger" @click="removeSelected">Remover</button>
     </div>
 </template>
 
@@ -93,18 +94,59 @@ const fetchServiceRequests = async () => {
     }
 };
 
+const updateScheduleStatus = async (scheduleId, newStatus) => {
+    try {
+        const response = await axios.patch(`/schedules/${scheduleId}`, {
+            status: newStatus
+        });
+        if (response.data.status === 'Success') {
+            console.log(`Status do agendamento ${scheduleId} atualizado para ${newStatus}`);
+        } else {
+            console.error(`Erro ao atualizar status do agendamento ${scheduleId}`);
+        }
+    } catch (error) {
+        console.error(`Erro ao atualizar status do agendamento ${scheduleId}:`, error);
+    }
+};
+
+const removeSelected = async () => {
+    for (const scheduleId of selectedRequests.value) {
+        try {
+            // Deletar o service schedule relacionado
+            const serviceScheduleResponse = await axios.get(`/serviceschedules?related_schedule=${scheduleId}`);
+            const serviceSchedule = serviceScheduleResponse.data.serviceSchedules[0];
+
+            if (serviceSchedule) {
+                await axios.delete(`/serviceschedules/${serviceSchedule._id}`);
+            }
+
+            // Deletar o schedule
+            await axios.delete(`/schedules/${scheduleId}`);
+
+        } catch (error) {
+            console.error(`Erro ao remover o agendamento ${scheduleId}:`, error);
+        }
+    }
+    alert('Agendamento(s) removido(s) com sucesso');
+    fetchServiceRequests(); // Atualiza a lista de solicitações de serviço após a remoção
+};
 
 onMounted(fetchServiceRequests);
 
-
-const acceptSelected = () => {
-    alert('Aceitar: ' + selectedRequests.value.join(', '));
-    // Lógica para aceitar os serviços selecionados
+const acceptSelected = async () => {
+    for (const scheduleId of selectedRequests.value) {
+        await updateScheduleStatus(scheduleId, 'Aceitada');
+    }
+    alert('Status dos agendamentos aceitos foram atualizados');
+    fetchServiceRequests(); // Atualiza a lista de solicitações de serviço após a atualização
 };
 
-const rejectSelected = () => {
-    alert('Rejeitar: ' + selectedRequests.value.join(', '));
-    // Lógica para rejeitar os serviços selecionados
+const rejectSelected = async () => {
+    for (const scheduleId of selectedRequests.value) {
+        await updateScheduleStatus(scheduleId, 'Rejeitada');
+    }
+    alert('Status dos agendamentos rejeitados foram atualizados');
+    fetchServiceRequests(); // Atualiza a lista de solicitações de serviço após a atualização
 };
 
 </script>
